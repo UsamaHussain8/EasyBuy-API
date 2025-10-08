@@ -1,0 +1,4 @@
+easybuy-api-env/
+__pycache__/
+*.env
+.env
