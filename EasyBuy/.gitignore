@@ -2,3 +2,7 @@ easybuy-api-env/
 __pycache__/
 *.env
 .env
+*.pyo
+*.pyc
+.vscode/
+api.http/

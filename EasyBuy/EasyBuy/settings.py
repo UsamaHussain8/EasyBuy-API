@@ -17,6 +17,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'django.contrib.admin',
     'django.contrib.auth',
+    'djoser',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -36,16 +37,22 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'EasyBuy.urls'
 
 REST_FRAMEWORK = {
-    # Use Django's standard `django.contrib.auth` permissions,
-    # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
     ]
+}
+
+SIMPLE_JWT = {
+   'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+DJOSER = {
+    'TOKEN_MODEL': None,
+    # other settings
 }
 
 TEMPLATES = [
