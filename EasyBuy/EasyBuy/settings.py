@@ -13,6 +13,7 @@ DEBUG = os.getenv("DEBUG")
 ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
+    'core',
     'rest_framework',
     'rest_framework.authtoken',
     'django.contrib.admin',
