@@ -15,6 +15,6 @@ def profile(request, id):
 @api_view(['GET'])
 @permission_classes((permissions.AllowAny,))
 def get_users(request):
-    all_users = User.objects.select_related('store_user').all()
+    all_users = User.objects.all()
     serializer = UserSerializer(all_users, many=True)
     return Response(serializer.data)

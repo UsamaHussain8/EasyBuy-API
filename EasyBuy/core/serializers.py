@@ -35,8 +35,9 @@ class UserSerializer(serializers.ModelSerializer):
             StoreUser.objects.create(user=user, **store_user_data)
         return user
 
-    def to_representation(self, instance):
-        """Ensure nested StoreUser appears when serializing."""
-        rep = super().to_representation(instance)
-        rep['store_user'] = StoreUserSerializer(instance.store_user).data
-        return rep
+    # def to_representation(self, instance):
+    #     """Ensure nested StoreUser appears when serializing."""
+    #     rep = super().to_representation(instance)
+    #     if(instance is not None and instance.store_user):
+    #         rep['store_user'] = StoreUserSerializer(instance.store_user).data
+    #     return rep
