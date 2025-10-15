@@ -8,11 +8,6 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import StoreUser
 from .serializers import UserSerializer, StoreUserSerializer
-
-class UserListView(generics.ListAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
 class RegisterUserView(generics.CreateAPIView):
     serializer_class = UserSerializer
     permission_classes = [permissions.AllowAny]
@@ -65,3 +60,13 @@ class LoginUserWithJwtView(APIView):
              return Response({
                 "error": "Invalid credentials"
             }, status=status.HTTP_401_UNAUTHORIZED)
+        
+class UserListView(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+class UserDetailView(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    lookup_field = 'id'
+    permission_classes = [permissions.IsAuthenticated]
