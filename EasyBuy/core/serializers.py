@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from .models import StoreUser
 from django.contrib.auth.models import User
 from django.db import transaction
+from .models import StoreUser
 
 class StoreUserSerializer(serializers.ModelSerializer):
     class Meta:
