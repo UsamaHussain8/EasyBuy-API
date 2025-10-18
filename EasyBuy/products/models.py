@@ -27,8 +27,8 @@ class Product(models.Model):
     description = models.TextField(null=True, default='')
     excerpt = models.CharField(max_length=150, default='', null=False)
     tags = models.ManyToManyField(Tag)
-    # # Each product can have only one seller and one seller can sell/create many products
-    # seller = models.ForeignKey(StoreUser, on_delete=models.DO_NOTHING)
+    # Each product can have only one seller and one seller can sell/create many products
+    seller = models.ForeignKey(StoreUser, on_delete=models.CASCADE, null=False)
 
     def __str__(self) -> str:
         return f"{self.name} costs {self.price}"
