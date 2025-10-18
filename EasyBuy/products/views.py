@@ -9,7 +9,7 @@ class ProductsListApiView(generics.ListAPIView):
 class ProductsCreateApiView(generics.CreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
 
 class ProductDetailsApiView(generics.RetrieveAPIView):
     queryset = Product.objects.all()

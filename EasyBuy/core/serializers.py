@@ -3,22 +3,14 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from .models import StoreUser
 
-class StoreUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = StoreUser
-        fields = (
-            'contact_number',
-            'address',
-        )
-
 class UserSerializer(serializers.ModelSerializer):
-    store_user = StoreUserSerializer(required=True)
+    #store_user = StoreUserSerializer(required=True)
 
     class Meta:
         model = User
         fields = [
-            'id', 'username', 'first_name', 'last_name',
-            'email', 'password', 'store_user'
+            'username', 'first_name', 'last_name',
+            'email', 'password',
         ]
         extra_kwargs = {
             'password': {'write_only': True}
@@ -41,3 +33,18 @@ class UserSerializer(serializers.ModelSerializer):
     #     if(instance is not None and instance.store_user):
     #         rep['store_user'] = StoreUserSerializer(instance.store_user).data
     #     return rep
+
+class StoreUserSerializer(serializers.ModelSerializer):
+    user = UserSerializer(required=True)
+    class Meta:
+        model = StoreUser
+        fields = (
+            'user',
+            'contact_number',
+            'address',
+            'role',
+        )
+        extra_kwargs = {
+            'role': {'write_only': True}
+        }
+
