@@ -1,5 +1,6 @@
 from django.db import models
 from django.template.defaultfilters import slugify
+from core.models import StoreUser
 
 class Tag(models.Model):
     caption = models.CharField(max_length=20)
@@ -26,6 +27,8 @@ class Product(models.Model):
     description = models.TextField(null=True, default='')
     excerpt = models.CharField(max_length=150, default='', null=False)
     tags = models.ManyToManyField(Tag)
+    # # Each product can have only one seller and one seller can sell/create many products
+    # seller = models.ForeignKey(StoreUser, on_delete=models.DO_NOTHING)
 
     def __str__(self) -> str:
         return f"{self.name} costs {self.price}"
