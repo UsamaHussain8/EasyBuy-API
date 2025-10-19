@@ -1,9 +1,9 @@
 from rest_framework import serializers
-from django.db import transaction
 from django.shortcuts import get_object_or_404
-from .models import Product, Tag
+from django.db import transaction
+from .models import Product, Tag, Review
 from core.models import StoreUser
-from core.serializers import StoreUserSerializer, UserSerializer
+from core.serializers import StoreUserSerializer
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
@@ -32,6 +32,7 @@ class ProductSerializer(serializers.ModelSerializer):
             'tags',
             'seller',
             'seller_id',
+            'reviews',
         ]
 
     @transaction.atomic()
@@ -50,3 +51,46 @@ class ProductSerializer(serializers.ModelSerializer):
 
         #product.save()
         return product
+    
+class ReviewSerializer(serializers.ModelSerializer):
+    reviewer = serializers.StringRelatedField(read_only=True)
+    product = serializers.StringRelatedField(read_only=True)
+    class Meta:
+        model = Review
+        fields = ['rating', 'review', 'product', 'reviewer']
+        read_only_fields = ['reviewer']
+
+    def validate(self, attrs):
+        request = self.context['request']
+        reviewer = request.user.store_user
+        product = self.context.get('product')
+
+         # Ensure product context is available
+        if not product:
+            raise serializers.ValidationError("Product not found in context.")
+        
+        # Check if user purchased this product
+        has_purchased = OrderItem.objects.filter(
+            order__buyer=reviewer, product=product
+        ).exists()
+
+        if not has_purchased:
+            raise serializers.ValidationError(
+                "You can only review products you've purchased."
+            )
+
+        already_reviewed = Review.objects.filter(
+            reviewer=reviewer, product=product
+        ).exists()
+
+        if already_reviewed:
+            raise serializers.ValidationError(
+                "You have already reviewed this product."
+            )
+        
+        return attrs
+
+    def create(self, validated_data):
+        product = self.context['product']
+        reviewer = self.context['request'].user.store_user
+        return Review.objects.create(product=product, reviewer=reviewer, **validated_data)

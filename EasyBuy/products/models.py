@@ -1,5 +1,6 @@
 from django.db import models
 from django.template.defaultfilters import slugify
+from django.core.validators import MaxValueValidator, MinValueValidator
 from core.models import StoreUser
 
 class Tag(models.Model):
@@ -37,3 +38,12 @@ class Product(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
         return super().save(*args, **kwargs)
+
+class Review(models.Model):
+    rating = models.PositiveIntegerField(null=False, validators=[MaxValueValidator(5), MinValueValidator(1)])
+    review = models.TextField(null=True, blank=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
+    reviewer = models.ForeignKey(StoreUser, on_delete=models.CASCADE, related_name='user_reviews')
+
+    def __str__(self):
+        return f"{self.reviewer} - {self.rating}"

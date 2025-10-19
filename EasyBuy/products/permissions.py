@@ -1,4 +1,6 @@
 from rest_framework import permissions
+from django.shortcuts import get_object_or_404
+from .models import Review, Product
 
 class IsSellerAndOwner(permissions.BasePermission):
     """
@@ -37,3 +39,23 @@ class IsSellerAndOwner(permissions.BasePermission):
         #     return False
             
         return obj.seller == request.user.store_user
+
+class CanReviewPurchasedProduct(permissions.BasePermission):
+    def has_permission(self, request, view):
+        product = get_object_or_404(Product, slug=view.kwargs['slug'])
+        reviewer = request.user.store_user
+        return OrderItem.objects.filter(order__buyer=reviewer, product=product).exists()
+    
+class IsReviewAuthorOrReadOnly(permissions.BasePermission):
+    """
+    Custom permission: only allow the author of the review to edit or delete it.
+    Everyone can read.
+    """
+
+    def has_object_permission(self, request, view, obj):
+        # SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS']
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        # For update/delete, only the review's author (reviewer) can modify
+        return obj.reviewer == request.user.store_user
