@@ -34,7 +34,7 @@ class LoginUserView(APIView):
         if user is not None:
             return Response({
                 "message": "Login successful",
-                "user": UserSerializer(user).data
+                "user": UserSerializer(user).data,
             }, status=status.HTTP_200_OK)
         else:
             return Response({

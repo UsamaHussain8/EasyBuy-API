@@ -11,7 +11,7 @@ class ProductsListApiView(generics.ListAPIView):
 class ProductsCreateApiView(generics.CreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
-    permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser, IsSellerAndOwner]
+    permission_classes = [permissions.IsAuthenticated, IsSellerAndOwner]
 
 class ProductDetailsApiView(generics.RetrieveAPIView):
     queryset = Product.objects.all()
