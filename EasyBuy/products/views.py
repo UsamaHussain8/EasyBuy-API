@@ -13,9 +13,15 @@ class ProductsCreateApiView(generics.CreateAPIView):
     serializer_class = ProductSerializer
     permission_classes = [permissions.IsAuthenticated, IsSellerAndOwner]
 
-class ProductDetailsApiView(generics.RetrieveAPIView):
+class ProductDetailsUpdateDestroyApiView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookup_url_kwarg = 'product_slug'
     lookup_field = 'slug'
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    
+    def get_permissions(self):
+        self.permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+        if self.request.method in ['PUT', 'PATCH', 'DELETE']:
+            self.permission_classes = [permissions.IsAuthenticated, IsSellerAndOwner]
+        return super().get_permissions()
+    
