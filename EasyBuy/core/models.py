@@ -14,7 +14,7 @@ class StoreUser(models.Model):
     role = models.CharField(max_length=50, default='buyer', null=False, choices=ROLE_CHOICES)
 
     def __str__(self):
-        return self.user.username
+        return f"StoreUser(user={self.user.username}, with contact_number={self.contact_number} and is a: {self.role})"
     
     def __repr__(self):
-        return f"StoreUser(user={self.user.username}, with contact_number={self.contact_number} is: {self.role})"
+        return f"StoreUser(user={self.user.username}, with contact_number={self.contact_number} and is a: {self.role})"

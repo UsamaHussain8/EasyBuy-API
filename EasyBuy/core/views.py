@@ -1,4 +1,3 @@
-from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.contrib.auth import authenticate
@@ -10,19 +9,20 @@ from .models import StoreUser
 from .serializers import UserSerializer, StoreUserSerializer
 
 class RegisterUserView(generics.CreateAPIView):
-    serializer_class = UserSerializer
+    model = StoreUser
+    serializer_class = StoreUserSerializer
     permission_classes = [permissions.AllowAny]
 
-    @transaction.atomic
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = serializer.save()
+    # @transaction.atomic
+    # def post(self, request, *args, **kwargs):
+    #     serializer = self.get_serializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     store_user = serializer.save()
 
-        return Response({
-            "message": "User registered successfully",
-            "user": UserSerializer(user).data
-        }, status=status.HTTP_201_CREATED)
+    #     return Response({
+    #         "message": "User registered successfully",
+    #         "store_user": StoreUserSerializer(store_user).data
+    #     }, status=status.HTTP_201_CREATED)
     
 class LoginUserView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -61,13 +61,10 @@ class LoginUserWithJwtView(APIView):
              return Response({
                 "error": "Invalid credentials"
             }, status=status.HTTP_401_UNAUTHORIZED)
-        
-class UserListView(generics.ListAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
 
 class UserDetailView(generics.RetrieveAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     lookup_field = 'id'
+    lookup_url_kwarg='id'
     permission_classes = [permissions.IsAuthenticated]

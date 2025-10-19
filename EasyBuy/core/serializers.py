@@ -16,17 +16,6 @@ class UserSerializer(serializers.ModelSerializer):
             'password': {'write_only': True}
         }
 
-    def create(self, validated_data):
-        store_user_data = validated_data.pop('store_user')
-
-        # only create users when both serializers contain the cleaned data
-        with transaction.atomic():
-            # Create user first
-            user = User.objects.create_user(**validated_data)
-            # Create related StoreUser profile
-            StoreUser.objects.create(user=user, **store_user_data)
-        return user
-
     # def to_representation(self, instance):
     #     """Ensure nested StoreUser appears when serializing."""
     #     rep = super().to_representation(instance)
@@ -47,4 +36,15 @@ class StoreUserSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'role': {'write_only': True}
         }
+
+    def create(self, validated_data):
+        user = validated_data.pop('user')
+        store_user = validated_data
+        # only create users when both serializers contain the cleaned data
+        with transaction.atomic():
+            # Create user first
+            user = User.objects.create_user(**user)
+            # Create related StoreUser profile
+            store_user = StoreUser.objects.create(user=user, **validated_data)
+        return store_user
 
