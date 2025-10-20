@@ -36,7 +36,8 @@ class Product(models.Model):
     
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.name)
+            base_slug = slugify(self.name)
+            self.slug = f"{base_slug}-{self.seller.user.id}"
         return super().save(*args, **kwargs)
 
 class Review(models.Model):
