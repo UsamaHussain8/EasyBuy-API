@@ -1,6 +1,7 @@
 from rest_framework import permissions
 from django.shortcuts import get_object_or_404
 from .models import Review, Product
+from orders.models import OrderItem
 
 class IsSellerAndOwner(permissions.BasePermission):
     """

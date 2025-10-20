@@ -4,6 +4,7 @@ from django.db import transaction
 from .models import Product, Tag, Review
 from core.models import StoreUser
 from core.serializers import StoreUserSerializer
+from orders.models import OrderItem
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
