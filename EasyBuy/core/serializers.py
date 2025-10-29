@@ -16,6 +16,11 @@ class UserSerializer(serializers.ModelSerializer):
             'password': {'write_only': True}
         }
 
+    def validate_email(self, value):
+        if User.objects.filter(email__iexact=value).exists():
+            raise serializers.ValidationError("A user with this email already exists.")
+        return value
+
     # def to_representation(self, instance):
     #     """Ensure nested StoreUser appears when serializing."""
     #     rep = super().to_representation(instance)

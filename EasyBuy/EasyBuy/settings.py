@@ -107,7 +107,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = (
+  # used for default signin such as loggin into admin panel
+ 'core.backends.EmailOrUsernameBackend',
+ 'django.contrib.auth.backends.ModelBackend', 
+ )
+
 AUTH_USER = 'core.StoreUser'
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATIC_URL = '/static/'
