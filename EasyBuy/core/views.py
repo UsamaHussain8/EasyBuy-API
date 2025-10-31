@@ -1,5 +1,4 @@
 from django.contrib.auth.models import User
-from django.db import transaction
 from django.contrib.auth import authenticate
 from rest_framework import permissions, generics, status
 from rest_framework.response import Response
