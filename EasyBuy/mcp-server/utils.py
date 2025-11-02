@@ -2,7 +2,7 @@ from products.models import Product
 from core.models import StoreUser
 import httpx
 
-def user_login_request(seller: StoreUser):
+async def user_login_request(seller: StoreUser):
     if seller is None:
         raise Exception("Seller is none!")
     

@@ -16,12 +16,13 @@ from core.models import StoreUser
 from utils import user_login_request
 from actions import add_products_to_database
 from schemas import ProductSchema, StoreUserSchema
+from asgiref.sync import sync_to_async
 
 mcp = FastMCP("EasyBuyMCPServer", host="127.0.0.1", port=8050)
 
 
 @mcp.tool()
-def add_product(product: ProductSchema, seller: StoreUserSchema):
+async def add_product(product: ProductSchema, seller: StoreUserSchema):
     """
     Add product associated with the seller to the EasyBuy database
 
@@ -48,12 +49,12 @@ def add_product(product: ProductSchema, seller: StoreUserSchema):
 
     storeUserSeller = None
     if seller.username:
-        storeUserSeller = StoreUser.objects.filter(user__username=seller.username).first()
+        storeUserSeller = sync_to_async(StoreUser.objects.filter(user__username=seller.username).first())
     elif seller.email:
-        storeUserSeller = StoreUser.objects.filter(user__email=seller.email).first()
+        storeUserSeller = sync_to_async(StoreUser.objects.filter(user__email=seller.email).first())
 
     user_tokens = user_login_request(storeUserSeller)
     add_products_to_database(product, seller, user_tokens["access_token"])
 
 if __name__ == '__main__':
-    mcp.run(transport="stdio")
+    mcp.run(transport="stdio", host="127.0.0.1", port=8050)

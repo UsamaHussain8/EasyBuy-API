@@ -1,8 +1,9 @@
 from products.models import Product
 from core.models import StoreUser
 import httpx
+from asgiref.sync import sync_to_async
 
-def add_products_to_database(product: Product, seller: StoreUser, access_token):
+async def add_products_to_database(product: Product, seller: StoreUser, access_token):
     """
     Builds a JSON payload dictionary for product creation.
     store_user: StoreUser instance (has .user)
@@ -14,7 +15,7 @@ def add_products_to_database(product: Product, seller: StoreUser, access_token):
         "Authorization": f"Bearer {access_token}"
     }
 
-    store_user_id = StoreUser.objects.get(user__email=seller.user.email).user.pk
+    store_user_id = await sync_to_async(StoreUser.objects.get(user__email=seller.user.email).user.pk)
     payload = {
         "name": product.name,
         "price": product.price,
@@ -36,5 +37,3 @@ def add_products_to_database(product: Product, seller: StoreUser, access_token):
             return data
         else:
             raise Exception("Invalid credentials")
-
-    #"seller_id": store_user_id
