@@ -4,9 +4,8 @@ from typing import List, Optional, Annotated
 class TagSchema(BaseModel):
     """
     Minimal tag representation for Product.tags ManyToMany relation.
-    You can expand this later if needed.
     """
-    name: str
+    caption: str
 
 class ProductSchema(BaseModel):
     """
@@ -31,7 +30,7 @@ class ProductSchema(BaseModel):
                 "category": "electronics",
                 "description": "High precision 2.4GHz wireless mouse with ergonomic design.",
                 "excerpt": "Ergonomic wireless mouse",
-                "tags": [{"name": "gadgets"}, {"name": "wireless"}]
+                "tags": [{"caption": "gadgets"}, {"caption": "wireless"}]
             }
         }
 

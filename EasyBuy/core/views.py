@@ -53,8 +53,8 @@ class LoginUserWithJwtView(APIView):
             return Response({
                 "message": "Login successful",
                 "user": UserSerializer(user).data,
-                "refresh": str(refresh_access_tokens),
-                "access": str(refresh_access_tokens.access_token),
+                "refresh_token": str(refresh_access_tokens),
+                "access_token": str(refresh_access_tokens.access_token),
             }, status=status.HTTP_200_OK)
         else:
              return Response({
