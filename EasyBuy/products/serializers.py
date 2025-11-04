@@ -33,7 +33,6 @@ class ProductSerializer(serializers.ModelSerializer):
             'tags',
             'seller',
             'seller_id',
-            'reviews',
         ]
 
     @transaction.atomic()
