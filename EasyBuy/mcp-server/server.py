@@ -14,11 +14,21 @@ from mcp.server.fastmcp import FastMCP
 from products.models import Product
 from core.models import StoreUser
 from utils import user_login_request, get_seller_id
-from actions import add_products_to_database
+from actions import add_products_to_database, add_user_to_database
 from schemas import ProductSchema, StoreUserSchema
 
 mcp = FastMCP("EasyBuyMCPServer", host="127.0.0.1", port=8050)
 
+
+@mcp.tool()
+async def add_user(store_user: StoreUserSchema):
+    "Register a new user to the EasyBuy Store"
+    if not any([
+        store_user.email, store_user.username, store_user.first_name, store_user.last_name, store_user.contact_number, store_user.password
+        ]):
+        raise Exception("Email, username, first name, last name, contact number and address are required fields")
+    
+    add_user_to_database(store_user)
 
 @mcp.tool()
 async def add_product(product: ProductSchema, seller: StoreUserSchema):

@@ -21,13 +21,6 @@ class UserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("A user with this email already exists.")
         return value
 
-    # def to_representation(self, instance):
-    #     """Ensure nested StoreUser appears when serializing."""
-    #     rep = super().to_representation(instance)
-    #     if(instance is not None and instance.store_user):
-    #         rep['store_user'] = StoreUserSerializer(instance.store_user).data
-    #     return rep
-
 class StoreUserSerializer(serializers.ModelSerializer):
     user = UserSerializer(required=True)
     class Meta:
