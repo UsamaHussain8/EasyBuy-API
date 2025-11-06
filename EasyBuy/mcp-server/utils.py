@@ -4,7 +4,7 @@ import httpx
 
 def user_login_request(seller: StoreUserSchema):
     if seller is None:
-        raise Exception("Seller is None!")
+        raise Exception("No seller info provided!")
 
     url = "http://127.0.0.1:8000/users/login/jwt/"
     payload = {
@@ -14,26 +14,21 @@ def user_login_request(seller: StoreUserSchema):
     }
     headers = {"Content-Type": "application/json"}
 
-    print(seller.email)
-    print(seller.username)
-    print(seller.password)
-
     with httpx.Client() as client:
         response = client.post(url, json=payload, headers=headers)
-        print(response.json())
         if response.status_code == 200:
             return response.json()
         else:
             raise Exception("Invalid credentials")
         
-def get_seller_id(seller: StoreUserSchema):
-    if seller is None:
-        raise Exception("Seller must be a real object")
+def get_user_id(store_user: StoreUserSchema):
+    if store_user is None:
+        raise Exception("No seller info provided!")
     
-    store_user = None
-    if seller.email:
-        store_user = StoreUser.objects.filter(user__email=seller.email).first()
+    store_user_db = None
+    if store_user.email:
+        store_user_db = StoreUser.objects.filter(user__email=store_user.email).first()
     else:
-        store_user = StoreUser.objects.filter(user__username=seller.username).first()
+        store_user_db = StoreUser.objects.filter(user__username=store_user.username).first()
 
-    return store_user.pk
+    return store_user_db.pk

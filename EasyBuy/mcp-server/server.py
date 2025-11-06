@@ -13,8 +13,8 @@ django.setup()
 from mcp.server.fastmcp import FastMCP
 from products.models import Product
 from core.models import StoreUser
-from utils import user_login_request, get_seller_id
-from actions import add_products_to_database, add_user_to_database
+from utils import user_login_request, get_user_id
+from actions import add_products_to_database, add_user_to_database, add_to_cart
 from schemas import ProductSchema, StoreUserSchema
 
 mcp = FastMCP("EasyBuyMCPServer", host="127.0.0.1", port=8050)
@@ -49,7 +49,6 @@ async def add_product(product: ProductSchema, seller: StoreUserSchema):
     if product.price < 1:
         raise Exception("Product price must be positive")
 
-    # --- ORM lookup (must be wrapped) ---
     if seller.email:
         storeUserSellerExists = await sync_to_async(
             lambda: StoreUser.objects.filter(user__email=seller.email).exists()
@@ -62,15 +61,45 @@ async def add_product(product: ProductSchema, seller: StoreUserSchema):
     if not storeUserSellerExists:
         raise Exception("Seller not found in database")
 
-    # --- Token and product addition (wrapped) ---
     user_tokens = await sync_to_async(user_login_request)(seller)
-    seller_id: int = await sync_to_async(get_seller_id)(seller)
+    seller_id: int = await sync_to_async(get_user_id)(seller)
     result = await sync_to_async(add_products_to_database)(
         product, seller, seller_id, user_tokens["access_token"]
     )
 
     return {"status": "success", "details": result}
 
+@mcp.tool()
+async def add_item_to_cart(product_quantity: int, product_id: int, store_user: StoreUserSchema):
+    """
+    Add a product associated to a cart associated with a store user.
+    
+    Args:
+        name: The person's name to greet
+    """
+    if not any([store_user, product_quantity, product_id, store_user.username, store_user.email, store_user.password]):
+        raise Exception("Please provide essential product and store user data")
+    
+    if store_user.email:
+        storeUserExists = await sync_to_async(
+            lambda: StoreUser.objects.filter(user__email=store_user.email).exists()
+        )()
+    else:
+        storeUserExists = await sync_to_async(
+            lambda: StoreUser.objects.filter(user__username=store_user.username).exists()
+        )()
+
+    if not storeUserExists:
+        raise Exception("Please first register to the platform!")
+
+    user_tokens = await sync_to_async(user_login_request)(store_user)
+    store_user_id: int = await sync_to_async(get_user_id)(store_user)
+
+    result = await sync_to_async(add_to_cart)(
+        product_quantity, product_id, store_user_id, user_tokens["access_token"]
+    )
+
+    return {"status": "success", "details": result}
 
 if __name__ == "__main__":
     mcp.run(transport="stdio", host="127.0.0.1", port=8050)
