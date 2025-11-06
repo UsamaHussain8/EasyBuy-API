@@ -1,5 +1,8 @@
-from pydantic import BaseModel, Field, constr
+from pydantic import BaseModel, Field
 from typing import List, Optional, Annotated
+from datetime import datetime
+from decimal import Decimal
+from enums import PaymentMethod, OrderStatus
 
 class TagSchema(BaseModel):
     """
@@ -64,5 +67,88 @@ class StoreUserSchema(BaseModel):
                 "num_orders": 0,
                 "address": "Lahore, Pakistan",
                 "role": "seller"
+            }
+        }
+
+class CartItemSchema(BaseModel):
+    """Represents one product entry in the user's cart."""
+    product: Optional[ProductSchema] = Field(None, description="Detailed product data (read-only)")
+    product_id: Optional[int] = Field(None, description="Product primary key (write-only)")
+    quantity: Annotated[int, Field(gt=0, description="Quantity of the product in the cart")] = 1
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "product_id": 4,
+                "quantity": 3
+            }
+        }
+
+class CartSchema(BaseModel):
+    """Full cart schema with nested items and total value."""
+    store_user: Optional[StoreUserSchema] = Field(None, description="Owner of the cart (read-only)")
+    items: Optional[List[CartItemSchema]] = Field(default_factory=list, description="List of items in the cart")
+    total_amount: Annotated[
+        Decimal,
+        Field(max_digits=10, decimal_places=2, description="Total value of items in the cart")
+    ] = Decimal("0.00")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "store_user": {
+                    "username": "ali_seller",
+                    "email": "ali@example.com"
+                },
+                "items": [
+                    {"product_id": 42, "quantity": 2},
+                    {"product_id": 58, "quantity": 1}
+                ],
+                "total_amount": "5200.00"
+            }
+        }
+
+class OrderItemSchema(BaseModel):
+    """Represents a single product in an order."""
+    product: Optional[ProductSchema] = Field(None, description="Detailed product info (read-only)")
+    product_id: Optional[int] = Field(None, description="Product ID (write-only)")
+    quantity: Annotated[int, Field(gt=0, description="Quantity ordered")] = 1
+    price_at_purchase: Annotated[
+        Decimal,
+        Field(max_digits=10, decimal_places=2, description="Price of the product at purchase time")
+    ]
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "product_id": 42,
+                "quantity": 2,
+                "price_at_purchase": "2600.00"
+            }
+        }
+
+class OrderSchema(BaseModel):
+    """Full order schema, including items, total amount, and metadata."""
+    store_user: Optional[StoreUserSchema] = Field(None, description="User who placed the order")
+    cart: Optional[int] = Field(None, description="ID of related cart (read-only)")
+    total_amount: Annotated[
+        Decimal,
+        Field(max_digits=10, decimal_places=2, description="Total order amount")
+    ]
+    status: OrderStatus = Field(OrderStatus.PENDING, description="Current order status")
+    shipping_address: str = Field(..., description="Address where order should be delivered")
+    payment_method: PaymentMethod = Field(PaymentMethod.CASH_ON_DELIVERY, description="Payment method used")
+    items: List[OrderItemSchema] = Field(..., description="List of items in this order")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "total_amount": "5200.00",
+                "shipping_address": "123 Street, Lahore",
+                "payment_method": "EASYPAISA",
+                "status": "PENDING",
+                "items": [
+                    {"product_id": 42, "quantity": 2, "price_at_purchase": "2600.00"}
+                ]
             }
         }
