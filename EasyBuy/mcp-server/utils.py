@@ -1,5 +1,6 @@
 from schemas import StoreUserSchema
 from core.models import StoreUser
+from orders.models import Cart, Order
 import httpx
 
 def user_login_request(seller: StoreUserSchema):
@@ -32,3 +33,9 @@ def get_user_id(store_user: StoreUserSchema):
         store_user_db = StoreUser.objects.filter(user__username=store_user.username).first()
 
     return store_user_db.pk
+
+def get_cart_id(store_user_id):
+    if store_user_id is None:
+        raise Exception("No seller info provided!")
+    
+    return Cart.objects.filter(store_user_id=store_user_id).first().pk

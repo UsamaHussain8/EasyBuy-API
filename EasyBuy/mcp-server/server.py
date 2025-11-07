@@ -13,8 +13,8 @@ django.setup()
 from mcp.server.fastmcp import FastMCP
 from products.models import Product
 from core.models import StoreUser
-from utils import user_login_request, get_user_id
-from actions import add_products_to_database, add_user_to_database, add_to_cart
+from utils import user_login_request, get_user_id, get_cart_id
+from actions import add_products_to_database, add_user_to_database, add_to_cart, add_order_to_database
 from schemas import ProductSchema, StoreUserSchema
 
 mcp = FastMCP("EasyBuyMCPServer", host="127.0.0.1", port=8050)
@@ -73,7 +73,7 @@ async def add_product(product: ProductSchema, seller: StoreUserSchema):
 async def add_item_to_cart(product_quantity: int, product_id: int, store_user: StoreUserSchema):
     """
     Add a product associated to a cart associated with a store user.
-    
+
     Args:
         name: The person's name to greet
     """
@@ -100,6 +100,12 @@ async def add_item_to_cart(product_quantity: int, product_id: int, store_user: S
     )
 
     return {"status": "success", "details": result}
+
+async def place_order(shipping_address: str, payment_method: str, store_user: StoreUserSchema):
+    user_tokens = await sync_to_async(user_login_request)(store_user)
+    store_user_id: int = await sync_to_async(get_user_id)(store_user)
+    cart_id: int = get_cart_id(store_user_id)
+    add_order_to_database(cart_id, shipping_address, payment_method, user_tokens["access_token"])
 
 if __name__ == "__main__":
     mcp.run(transport="stdio", host="127.0.0.1", port=8050)

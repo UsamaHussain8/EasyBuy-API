@@ -80,3 +80,25 @@ def add_to_cart(product_quantity: int, product_id: int, store_user_id: int, acce
         return response.json()
     else:
         raise Exception(f"Add to cart failed: {response.text}")
+    
+def add_order_to_database(cart_id: int, shipping_address: str, payment_method: str, access_token: str):
+    """
+    Add a product to the user's cart.
+    """
+    url = "http://127.0.0.1:8000/orders/create/"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {access_token}"
+    }
+    payload = {
+        "shipping_address": shipping_address,
+        "payment_method": payment_method
+    }
+
+    with httpx.Client() as client:
+        response = client.post(url, json=payload, headers=headers)
+
+    if response.status_code == 201:
+        return response.json()
+    else:
+        raise Exception(f"Add to cart failed: {response.text}")
