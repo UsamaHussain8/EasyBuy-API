@@ -1,7 +1,26 @@
-from schemas import StoreUserSchema
+from schemas import StoreUserSchema, ProductSchema
 from core.models import StoreUser
 from orders.models import Cart, Order
 import httpx
+
+def validate_add_product_inputs(product: ProductSchema, seller: StoreUserSchema):
+    if seller.role != "seller":
+        raise Exception("Only users with role='seller' can add products")
+
+    required_fields = {
+        "email": seller.email,
+        "username": seller.username,
+        "first_name": seller.first_name,
+        "last_name": seller.last_name,
+        "password": seller.password,
+    }
+
+    missing = [name for name, value in required_fields.items() if not value]
+    if missing:
+        raise Exception(f"Missing required seller fields: {', '.join(missing)}")
+    
+    if any([product.quantity < 1, product.price < 1]):
+        raise Exception("Product quantity and price must be at least 1")
 
 def user_login_request(seller: StoreUserSchema):
     if seller is None:

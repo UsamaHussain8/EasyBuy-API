@@ -1,6 +1,7 @@
 from products.models import Product
 from core.models import StoreUser
 from schemas import ProductSchema, StoreUserSchema
+from enums import PaymentMethod, OrderStatus
 import httpx
 from asgiref.sync import sync_to_async
 import http
@@ -59,9 +60,6 @@ def add_products_to_database(product: ProductSchema, seller: StoreUserSchema, se
 
 
 def add_to_cart(product_quantity: int, product_id: int, store_user_id: int, access_token: str):
-    """
-    Add a product to the user's cart.
-    """
     url = "http://127.0.0.1:8000/cart/add/"
     headers = {
         "Content-Type": "application/json",
@@ -82,9 +80,6 @@ def add_to_cart(product_quantity: int, product_id: int, store_user_id: int, acce
         raise Exception(f"Add to cart failed: {response.text}")
     
 def add_order_to_database(cart_id: int, shipping_address: str, payment_method: str, access_token: str):
-    """
-    Add a product to the user's cart.
-    """
     url = "http://127.0.0.1:8000/orders/create/"
     headers = {
         "Content-Type": "application/json",
@@ -92,7 +87,7 @@ def add_order_to_database(cart_id: int, shipping_address: str, payment_method: s
     }
     payload = {
         "shipping_address": shipping_address,
-        "payment_method": payment_method
+        "payment_method": PaymentMethod.from_str(payment_method)
     }
 
     with httpx.Client() as client:

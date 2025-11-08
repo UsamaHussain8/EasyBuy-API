@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.auth.models import User
 from core.models import StoreUser
 from products.models import Product
 from django.core.exceptions import ValidationError
@@ -15,6 +14,10 @@ class Cart(models.Model):
         cart_items = self.cartitem_set.all()  # Get all cart items associated with the cart
         total_price = sum(item.product.price * item.quantity for item in cart_items)
         return total_price
+    
+    def save(self, *args, **kwargs):
+        self.total_amount = self.calculate_total_price()
+        return super().save(*args, **kwargs)
     
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
