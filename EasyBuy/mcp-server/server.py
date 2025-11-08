@@ -101,11 +101,15 @@ async def add_item_to_cart(product_quantity: int, product_id: int, store_user: S
 
     return {"status": "success", "details": result}
 
+@mcp.tool()
 async def place_order(shipping_address: str, payment_method: str, store_user: StoreUserSchema):
     user_tokens = await sync_to_async(user_login_request)(store_user)
     store_user_id: int = await sync_to_async(get_user_id)(store_user)
-    cart_id: int = get_cart_id(store_user_id)
-    add_order_to_database(cart_id, shipping_address, payment_method, user_tokens["access_token"])
+    cart_id: int = await sync_to_async(get_cart_id)(store_user_id)
+    result = await sync_to_async(add_order_to_database)(cart_id, shipping_address, payment_method, user_tokens["access_token"])
+
+    return {"status": "success", "details": result}
+
 
 if __name__ == "__main__":
     mcp.run(transport="stdio", host="127.0.0.1", port=8050)
