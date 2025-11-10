@@ -55,7 +55,7 @@ async def add_product(product: ProductSchema, seller: StoreUserSchema):
             error occurs during the request or database operation.
     """
     validate_add_product_inputs(product, seller)
-    
+
     if seller.email:
         storeUserSellerExists = await sync_to_async(
             lambda: StoreUser.objects.filter(user__email=seller.email).exists()
@@ -166,4 +166,4 @@ async def place_order(shipping_address: str, payment_method: str, store_user: St
 
 
 if __name__ == "__main__":
-    mcp.run(transport="stdio", host="127.0.0.1", port=8050)
+    mcp.run(transport="streamable-http", host="127.0.0.1", port=8050)
