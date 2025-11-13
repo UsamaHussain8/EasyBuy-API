@@ -1,10 +1,14 @@
+from rest_framework.views import APIView
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
 from django.db import transaction
+from django.shortcuts import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
 from .models import Cart, CartItem, Order, OrderItem
 from .serializers import CartSerializer, CartItemSerializer, OrderSerializer
 from products.models import Product
+from products.serializers import ProductSerializer
+from recommender.recommender import Recommender, build_recommender
 
 class CartDetailView(generics.RetrieveAPIView):
     """
@@ -123,3 +127,19 @@ class OrderCreateView(generics.CreateAPIView):
         cart_items.delete()
 
         return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
+
+class RecommendView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        # load model from disk
+        try:
+            model = Recommender.load()
+        except FileNotFoundError:
+            return Response({'detail': 'Recommender model not built yet'}, status=503)
+
+        store_user = user.storeuser  # adjust if different relation
+        recs = model.recommend_for_user(store_user.id, top_n=10)
+        serializer = ProductSerializer(recs, many=True, context={'request': request})
+        return Response(serializer.data)
