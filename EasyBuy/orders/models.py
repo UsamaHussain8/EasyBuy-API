@@ -16,8 +16,16 @@ class Cart(models.Model):
         return total_price
     
     def save(self, *args, **kwargs):
-        self.total_amount = self.calculate_total_price()
-        return super().save(*args, **kwargs)
+        # Normal first save
+        super().save(*args, **kwargs)
+
+        # Now update total safely
+        new_total = self.calculate_total_price()
+
+        if self.total_amount != new_total:
+            self.total_amount = new_total
+            super().save(update_fields=["total_amount"])
+
     
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
