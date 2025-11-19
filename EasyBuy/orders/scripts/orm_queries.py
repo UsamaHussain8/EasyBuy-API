@@ -1,8 +1,8 @@
 from django_extensions import db
 from core.models import StoreUser, User
-from products.models import Product
+from products.models import Product, Review
 from orders.models import Order, OrderItem, Cart, CartItem
-from django.db.models import Count, F, Q, Sum
+from django.db.models import Count, F, Q, Sum, Count, Avg
 from django.db import connection
 from pprint import pprint
 
@@ -66,6 +66,23 @@ def revenue_from_completed_orders():
 
     pprint(connection.queries)
 
+def orders_placed_by_customer():
+    orders_placed_each_customer = \
+        StoreUser.objects.annotate(num_orders_by_customer=Count('num_orders')). \
+        annotate(username=F('user__username'), email=F('user__email')). \
+        values('id', 'num_orders')
+        #filter(num_orders__gt=0)
+    print(orders_placed_each_customer)
+
+    pprint(connection.queries)
+
+def avg_rating_per_product():
+    rating_per_product = Product.objects.annotate(avg_rating=Avg('reviews__rating')).values('id', 'name', 'avg_rating')
+    print(rating_per_product)
+
+    pprint(connection.queries)
+
+
 ####################################################    
 def run(): 
     """
@@ -101,4 +118,14 @@ def run():
     """
     Calculate total revenue from all COMPLETED orders
     """
-    revenue_from_completed_orders()
+    # revenue_from_completed_orders()
+
+    """
+    Count how many orders each buyer has placed
+    """
+    # orders_placed_by_customer()
+
+    """
+    Calculate average rating per product
+    """
+    avg_rating_per_product()
