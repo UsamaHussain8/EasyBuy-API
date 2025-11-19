@@ -82,6 +82,29 @@ def avg_rating_per_product():
 
     pprint(connection.queries)
 
+def num_reviews_per_product():
+    num_reviews_per_product = Product.objects.annotate(review_count=Count('reviews')).values('id', 'name', 'review_count')
+    print(num_reviews_per_product)
+
+    pprint(connection.queries)
+
+def total_spent_each_buyer():
+    total_spendings_by_buyer = StoreUser.objects.annotate(total_spent=Sum('order__total_amount')).\
+                                annotate(username=F('user__username')).values('username', 'total_spent').\
+                                order_by('-id')
+    print(total_spendings_by_buyer)
+
+    pprint(connection.queries)
+
+def num_products_each_seller():
+    num_products_by_seller = \
+        StoreUser.objects.filter(role__in=['seller', 'Seller']).\
+        annotate(product_count=Sum('product__quantity')).\
+        annotate(username=F('user__username')).\
+        values('username', 'product_count')
+    print(num_products_by_seller)
+
+    pprint(connection.queries)
 
 ####################################################    
 def run(): 
@@ -128,4 +151,19 @@ def run():
     """
     Calculate average rating per product
     """
-    avg_rating_per_product()
+    # avg_rating_per_product()
+
+    """
+    Find number of reviews per product
+    """
+    # num_reviews_per_product()
+
+    """
+    Calculate total spendings by each buyer
+    """
+    total_spent_each_buyer()
+
+    """
+    Calculate number of products each seller sells
+    """
+    # num_products_each_seller()
