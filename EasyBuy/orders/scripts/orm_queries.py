@@ -106,6 +106,17 @@ def num_products_each_seller():
 
     pprint(connection.queries)
 
+def num_items_for_each_order():
+    num_orderitems_in_order = Order.objects.annotate(item_count=Count('orderitem__quantity')).values('id', 'item_count')
+    print(num_orderitems_in_order)
+
+    pprint(connection.queries)
+
+def increase_product_quantities(quantity: int):
+    Product.objects.update(quantity=F('quantity') + quantity)
+    # Product.save()
+    print(Product.refresh_from_db('quantity'))
+
 ####################################################    
 def run(): 
     """
@@ -161,9 +172,19 @@ def run():
     """
     Calculate total spendings by each buyer
     """
-    total_spent_each_buyer()
+    # total_spent_each_buyer()
 
     """
     Calculate number of products each seller sells
     """
     # num_products_each_seller()
+
+    """
+    Count number of items in each order
+    """
+    # num_items_for_each_order()
+
+    """
+    Increase product quantity by a passed-in quantity/value
+    """
+    increase_product_quantities(1)
