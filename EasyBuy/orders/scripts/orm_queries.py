@@ -3,6 +3,7 @@ from core.models import StoreUser, User
 from products.models import Product, Review
 from orders.models import Order, OrderItem, Cart, CartItem
 from django.db.models import Count, F, Q, Sum, Count, Avg
+from django.contrib.postgres.aggregates import ArrayAgg
 from django.db import connection
 from pprint import pprint
 
@@ -117,6 +118,36 @@ def increase_product_quantities(quantity: int):
     # Product.save()
     print(Product.refresh_from_db('quantity'))
 
+def fetch_buyer_and_cart():
+    buyer_with_cart = Order.objects.select_related('store_user', 'store_user__user', 'cart')
+    for buyer in buyer_with_cart:
+        print(buyer.store_user.user.username)
+        print(buyer.cart.id)
+
+    pprint(connection.queries)
+
+def fetch_product_tags():
+    products_with_tags = Product.objects.prefetch_related('tags')
+    
+    # result = []
+
+    # for p in products_with_tags:
+    #     result.append({
+    #         'name': p.name,
+    #         'tags': [t.caption for t in p.tags.all()]
+    #     })
+    # pprint(result)
+    products_with_tags = (
+        Product.objects
+        .annotate(
+            product_tags=ArrayAgg('tags__caption', distinct=True)
+        )
+        .values('name', 'product_tags')
+    )
+    pprint(products_with_tags)
+
+    pprint(connection.queries)
+
 ####################################################    
 def run(): 
     """
@@ -187,4 +218,14 @@ def run():
     """
     Increase product quantity by a passed-in quantity/value
     """
-    increase_product_quantities(1)
+    # increase_product_quantities(1)
+
+    """
+    Fetch all orders with store user and cart with single DB query
+    """
+    fetch_buyer_and_cart()
+
+    """
+    Fetch all Products with their Tags
+    """
+    # fetch_product_tags()
